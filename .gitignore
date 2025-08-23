@@ -1,0 +1,37 @@
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+env/
+venv/
+*.sqlite3
+
+# FastAPI / logs
+*.log
+*.pid
+
+# Node/Frontend (if you add React/Next.js)
+node_modules/
+dist/
+.build/
+.next/
+out/
+
+# Data / vector stores / uploads
+data/
+store/
+
+
+# Environment & secrets
+.env
+.env.*
+*.pem
+*.key
+*.crt
+*.p12
+
+# OS/IDE
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
