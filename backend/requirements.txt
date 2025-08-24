@@ -1,14 +1,26 @@
-fastapi==0.111.0
-uvicorn==0.30.1
-pydantic==2.8.2
-python-multipart==0.0.9
+fastapi>=0.110
+uvicorn[standard]>=0.29
+gunicorn>=21.2
+pydantic>=2.6
+pydantic-settings>=2.2
+python-multipart>=0.0.9
 
-numpy==1.26.4
+# RAG helpers
+markdown>=3.6
+pypdf>=4.2
+tiktoken>=0.7
+openai>=1.40
+
+# Vector/embeddings options (pick either local or API-based)
+sentence-transformers>=2.7
 faiss-cpu==1.7.4
-sentence-transformers==3.0.1
 
-pypdf==4.2.0
-markdown==3.6
+# Rate limiting (optional)
+slowapi>=0.1.9
 
-openai==1.37.0   # optional if you want LLM answers
-tiktoken==0.7.0  # optional token counting
+# Utils
+httpx>=0.27
+requests>=2.32
+
+# Important compatibility (many libs still expect <2)
+numpy<2

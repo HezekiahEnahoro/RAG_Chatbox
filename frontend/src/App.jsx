@@ -6,6 +6,7 @@ export default function Chat() {
   const [msgs, setMsgs] = useState([]);
   const [q, setQ] = useState("");
   const [busy, setBusy] = useState(false);
+  const [error, setError] = useState(null);
   const fileRef = useRef(null);
 
   async function onUpload() {
@@ -16,6 +17,11 @@ export default function Chat() {
     setBusy(true);
     try {
       const r = await fetch(`${API}/ingest`, { method: "POST", body: fd });
+    if (r.status === 429){
+      const data = await r.json()
+      setError(data?.message || "You’ve hit the upload rate limit.");
+      return;  
+      }
       const j = await r.json();
       pushMsg({
         role: "system",
@@ -69,13 +75,19 @@ export default function Chat() {
             className="block w-full text-sm"
             accept=".pdf,.txt,.md"
           />
+          {error && (
+            <div className="rounded-md border border-red-300 bg-red-50 p-2 text-sm">
+              {error} <strong>Try again in an hour</strong>
+            </div>
+          )}
           <button
             onClick={onUpload}
             disabled={busy}
-            className="px-3 py-2 rounded bg-indigo-600 text-white disabled:opacity-50">
-            {busy ? "Working…" : "Ingest"}
-          </button>
+            className="px-3 py-2 rounded bg-indigo-600 text-white disabled:opacity-50">Upload</button>
         </div>
+      </div>
+      <div className="px-3 py-2 rounded bg-indigo-600 text-white disabled:opacity-50">
+        {busy ? "Thinking..." : "Wellcome..."}
       </div>
 
       <div className="rounded-xl border bg-white p-4 h-[60vh] overflow-y-auto">
@@ -105,7 +117,9 @@ export default function Chat() {
           placeholder="Ask a question about your documents…"
           className="w-full rounded-lg border px-3 py-2 outline-none focus:ring-2 focus:ring-indigo-500"
         />
-        <button className="px-4 py-2 rounded bg-indigo-600 text-white">
+        <button
+          type="submit"
+          className="px-4 py-2 rounded bg-indigo-600 text-white">
           Send
         </button>
       </form>

@@ -9,6 +9,8 @@ from slowapi import Limiter, _rate_limit_exceeded_handler
 from slowapi.util import get_remote_address
 from slowapi.errors import RateLimitExceeded
 from rag import RAGPipeline
+import uvicorn
+
 
 app = FastAPI(title="RAG Chatbot API")
 app.add_middleware(CORSMiddleware, allow_origins=["*"], allow_methods=["*"], allow_headers=["*"])
@@ -115,7 +117,7 @@ async def ingest(request: Request, files: list[UploadFile] = File(...), collecti
     
 
 @app.post("/ask")
-@limiter.limit("20/hour")
+@limiter.limit("4/hour")
 async def ask(request: Request, body: AskBody):
     """Ask questions about ingested documents"""
     if not body.query.strip():
@@ -182,3 +184,10 @@ def extract_text(filename: str, content: bytes) -> str:
     except Exception as e:
         raise ValueError(f"Failed to extract text from {filename}: {str(e)}")    
 
+if __name__ == "__main__":
+    uvicorn.run(
+        "backend.app:app",
+        host="0.0.0.0",
+        port=int(os.getenv("PORT", 8001)),
+        reload=False
+    )
