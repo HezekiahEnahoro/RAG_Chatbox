@@ -13,7 +13,7 @@ openai>=1.40
 
 # Vector/embeddings options (pick either local or API-based)
 sentence-transformers>=2.7
-faiss-cpu==1.7.3
+faiss-cpu==1.12.0
 
 # Rate limiting (optional)
 slowapi>=0.1.9
