@@ -13,7 +13,18 @@ import uvicorn
 
 
 app = FastAPI(title="RAG Chatbot API")
-app.add_middleware(CORSMiddleware, allow_origins=["*"], allow_methods=["*"], allow_headers=["*"])
+origins = [o.strip() for o in os.getenv("ALLOWED_ORIGINS", "").split(",") if o.strip()]
+origin_regex = os.getenv("ALLOWED_ORIGIN_REGEX")  # e.g. r"https://.*\.vercel\.app$"
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=origins or [],
+    allow_origin_regex=origin_regex,
+    allow_methods=["*"],
+    allow_headers=["*"],
+    expose_headers=["Retry-After"],
+    allow_credentials=os.getenv("ALLOW_CREDENTIALS", "false").lower() == "true",
+)
 
 # Rate limiter setup
 limiter = Limiter(key_func=get_remote_address)
