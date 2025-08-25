@@ -13,8 +13,14 @@ import uvicorn
 
 
 app = FastAPI(title="RAG Chatbot API")
+ALLOWED_ORIGIN = os.getenv("ALLOWED_ORIGINS")
+ALLOW_CREDENTIALS = os.getenv("ALLOW_CREDENTIALS")
 app.add_middleware(
-    CORSMiddleware, allow_origins=["*"], allow_methods=["*"], allow_headers=["*"]
+    CORSMiddleware, allow_origins=[ALLOWED_ORIGIN,  # Your frontend domain
+        "http://localhost:3000", 
+        "http://localhost:8001",], allow_methods=["*"], allow_credentials=ALLOW_CREDENTIALS,
+        # allow_methods=["GET", "POST"],
+        allow_headers=["*"],
 )
 
 # Rate limiter setup
