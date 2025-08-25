@@ -19,8 +19,12 @@ EMBED_MODEL_NAME = os.getenv("EMBED_MODEL", "sentence-transformers/all-MiniLM-L6
 OPENAI_EMBED_MODEL = os.getenv("OPENAI_EMBED_MODEL", "text-embedding-3-small")
 OPENAI_CHAT_MODEL  = os.getenv("OPENAI_MODEL", "gpt-4o-mini")
 TRANSFORMERS_CACHE = os.getenv("TRANSFORMERS_CACHE")  # e.g. /app/cache/hf
+
 STORE_DIR = os.getenv("STORE_DIR", "store")
 
+os.environ.setdefault("HF_HOME", "/opt/render/project/src/.cache/hf")
+os.environ.setdefault("TRANSFORMERS_CACHE", os.environ["HF_HOME"])
+os.makedirs(os.environ["HF_HOME"], exist_ok=True)
 # Strongly limit hidden thread pools (saves RAM/CPU)
 os.environ.setdefault("OMP_NUM_THREADS", "1")
 os.environ.setdefault("OPENBLAS_NUM_THREADS", "1")
@@ -107,7 +111,7 @@ class RAGPipeline:
     def _get_sbert(self):
         if self._sbert is None:
             from sentence_transformers import SentenceTransformer
-            self._sbert = SentenceTransformer(EMBED_MODEL_NAME, cache_folder=TRANSFORMERS_CACHE)
+            self._sbert = SentenceTransformer(EMBED_MODEL_NAME, cache_folder=os.getenv("HF_HOME"))
             self._dim = int(self._sbert.get_sentence_embedding_dimension())
         return self._sbert
 
