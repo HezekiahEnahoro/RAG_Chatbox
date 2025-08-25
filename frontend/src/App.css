@@ -1,1 +1,15 @@
 @import "tailwindcss";
+html, body, #root { height: 100%; }
+body { overflow: hidden; }                  /* page never scrolls */
+* { overscroll-behavior: contain; }         /* avoid bounce on mobile */
+
+
+/* Idle + thinking animations */
+@keyframes idle-float { 0%{transform:translateY(0) scale(1)} 50%{transform:translateY(-6px) scale(1.03)} 100%{transform:translateY(0) scale(1)} }
+@keyframes shimmer { 0%{background-position:200% 0} 100%{background-position:-200% 0} }
+@keyframes dots { 0%,80%,100%{transform:translateY(0);opacity:.25} 40%{transform:translateY(-6px);opacity:1} }
+@keyframes slide { 0%{transform:translateX(-100%)} 50%{transform:translateX(60%)} 100%{transform:translateX(150%)} }
+
+@media (prefers-reduced-motion: reduce) {
+  .no-motion { animation: none !important }
+}

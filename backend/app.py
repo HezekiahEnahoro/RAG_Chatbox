@@ -13,17 +13,8 @@ import uvicorn
 
 
 app = FastAPI(title="RAG Chatbot API")
-origins = [o.strip() for o in os.getenv("ALLOWED_ORIGINS", "").split(",") if o.strip()]
-origin_regex = os.getenv("ALLOWED_ORIGIN_REGEX")  # e.g. r"https://.*\.vercel\.app$"
-
 app.add_middleware(
-    CORSMiddleware,
-    allow_origins=origins or [],
-    allow_origin_regex=origin_regex,
-    allow_methods=["*"],
-    allow_headers=["*"],
-    expose_headers=["Retry-After"],
-    allow_credentials=os.getenv("ALLOW_CREDENTIALS", "false").lower() == "true",
+    CORSMiddleware, allow_origins=["*"], allow_methods=["*"], allow_headers=["*"]
 )
 
 # Rate limiter setup
@@ -83,7 +74,7 @@ async def health(request: Request):
     }
 
 @app.post("/ingest")
-@limiter.limit("5/hour")
+@limiter.limit("500/hour")
 async def ingest(request: Request, files: list[UploadFile] = File(...), collection: str = Query("default")):
     """Upload and ingest documents"""
     if not files:
@@ -128,7 +119,7 @@ async def ingest(request: Request, files: list[UploadFile] = File(...), collecti
     
 
 @app.post("/ask")
-@limiter.limit("4/hour")
+@limiter.limit("40/hour")
 async def ask(request: Request, body: AskBody):
     """Ask questions about ingested documents"""
     if not body.query.strip():
@@ -197,7 +188,7 @@ def extract_text(filename: str, content: bytes) -> str:
 
 if __name__ == "__main__":
     uvicorn.run(
-        "backend.app:app",
+        "app:app",
         host="0.0.0.0",
         port=int(os.getenv("PORT", 8001)),
         reload=False

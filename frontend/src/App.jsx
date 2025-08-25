@@ -22,7 +22,18 @@ export default function Chat() {
       setError(data?.message || "You’ve hit the upload rate limit.");
       return;  
       }
-      const j = await r.json();
+    if (!r.ok) {
+      const text = await r.text(); // might be empty/HTML
+      setError(`Upload failed (${r.status}). ${text?.slice(0, 200) || ""}`);
+      return;
+    }
+      const ct = r.headers.get("content-type") || "";
+      const j = ct.includes("application/json") ? await r.json() : null;
+      if (!j) {
+        setError("Unexpected server response.");
+        return;
+      }
+
       pushMsg({
         role: "system",
         content: `Ingested ${j.chunks_added} chunks from: ${j.files.join(
@@ -75,27 +86,105 @@ export default function Chat() {
             className="block w-full text-sm"
             accept=".pdf,.txt,.md"
           />
+
+          <button
+            onClick={onUpload}
+            disabled={busy}
+            className="px-3 py-2 rounded bg-indigo-600 text-white disabled:opacity-50">
+            Upload
+          </button>
           {error && (
             <div className="rounded-md border border-red-300 bg-red-50 p-2 text-sm">
               {error} <strong>Try again in an hour</strong>
             </div>
           )}
-          <button
-            onClick={onUpload}
-            disabled={busy}
-            className="px-3 py-2 rounded bg-indigo-600 text-white disabled:opacity-50">Upload</button>
         </div>
       </div>
-      <div className="px-3 py-2 rounded bg-indigo-600 text-white disabled:opacity-50">
-        {busy ? "Thinking..." : "Wellcome..."}
+      <div className="">
+        {busy ? (
+          <div
+            role="status"
+            aria-live="polite"
+            className="grid place-items-center gap-2 rounded-xl border bg-white p-4">
+            {/* thinking: three dots + progress sweep */}
+            <div className="flex items-end gap-1" aria-hidden="true">
+              <span
+                className="h-2 w-2 rounded-full bg-gray-900 opacity-25"
+                style={{ animation: "dots 1.2s ease-in-out infinite" }}
+              />
+              <span
+                className="h-2 w-2 rounded-full bg-gray-900 opacity-25"
+                style={{ animation: "dots 1.2s .15s ease-in-out infinite" }}
+              />
+              <span
+                className="h-2 w-2 rounded-full bg-gray-900 opacity-25"
+                style={{ animation: "dots 1.2s .3s ease-in-out infinite" }}
+              />
+            </div>
+            <div
+              className="h-1.5 w-40 overflow-hidden rounded-full bg-gray-200"
+              aria-hidden="true">
+              <span
+                className="block h-full w-1/3 rounded-full bg-gray-900"
+                style={{ animation: "slide 1.6s ease-in-out infinite" }}
+              />
+            </div>
+            <div className="text-xs text-gray-600">thinking…</div>
+          </div>
+        ) : (
+          <div
+            role="status"
+            aria-live="polite"
+            className="grid place-items-center gap-3 rounded-xl border bg-white p-6">
+            {/* idle: soft floating blob + shimmer line */}
+            <div
+              className="h-7 w-7 rounded-full"
+              style={{
+                background:
+                  "radial-gradient(circle at 30% 30%, #7aa7ff, #6ef3d6)",
+                filter: "blur(.2px)",
+                animation: "idle-float 3.2s ease-in-out infinite",
+              }}
+            />
+            <div
+              className="h-2 w-40 rounded-full"
+              style={{
+                background:
+                  "linear-gradient(90deg, rgba(0,0,0,.08) 20%, rgba(0,0,0,.18) 40%, rgba(0,0,0,.08) 60%)",
+                backgroundSize: "200% 100%",
+                animation: "shimmer 2.2s linear infinite",
+              }}
+            />
+            <div className="text-xs text-gray-600">
+              welcome… ask me anything
+            </div>
+          </div>
+        )}
       </div>
 
-      <div className="rounded-xl border bg-white p-4 h-[60vh] overflow-y-auto">
+      <div className="rounded-xl border bg-white p-4 h-[40vh] overflow-y-auto">
         {msgs.length === 0 && (
           <div className="text-sm text-gray-500">
             Upload docs and ask a question (e.g., “What are the key dates?”).
           </div>
         )}
+        {busy && msgs.length === 0 && (
+          <div className="space-y-3">
+            {[...Array(3)].map((_, i) => (
+              <div
+                key={i}
+                className="h-4 w-2/3 rounded bg-gray-200"
+                style={{
+                  animation: "shimmer 2.2s linear infinite",
+                  backgroundImage:
+                    "linear-gradient(90deg, rgba(0,0,0,.06) 20%, rgba(0,0,0,.14) 40%, rgba(0,0,0,.06) 60%)",
+                  backgroundSize: "200% 100%",
+                }}
+              />
+            ))}
+          </div>
+        )}
+
         {msgs.map((m, i) => (
           <div
             key={i}
