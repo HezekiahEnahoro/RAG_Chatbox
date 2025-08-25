@@ -18,8 +18,10 @@ ALLOW_CREDENTIALS = os.getenv("ALLOW_CREDENTIALS")
 app.add_middleware(
     CORSMiddleware, allow_origins=[ALLOWED_ORIGIN,  # Your frontend domain
         "http://localhost:3000", 
-        "http://localhost:8001",], allow_methods=["*"], allow_credentials=ALLOW_CREDENTIALS,
-        # allow_methods=["GET", "POST"],
+        "http://localhost:8001",
+        ],
+        allow_credentials=ALLOW_CREDENTIALS,
+        allow_methods=["GET", "POST"],
         allow_headers=["*"],
 )
 
