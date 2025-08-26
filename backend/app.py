@@ -5,9 +5,9 @@ from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 from markdown import markdown
 from pypdf import PdfReader
-from slowapi import Limiter, _rate_limit_exceeded_handler
-from slowapi.util import get_remote_address
-from slowapi.errors import RateLimitExceeded
+# from slowapi import Limiter, _rate_limit_exceeded_handler
+# from slowapi.util import get_remote_address
+# from slowapi.errors import RateLimitExceeded
 from rag import RAGPipeline
 import uvicorn
 
@@ -21,14 +21,14 @@ app.add_middleware(
         "http://localhost:8001",
         ],
         allow_credentials=ALLOW_CREDENTIALS,
-        allow_methods=["GET", "POST"],
+        allow_methods=["*"],
         allow_headers=["*"],
 )
 
 # Rate limiter setup
-limiter = Limiter(key_func=get_remote_address)
-app.state.limiter = limiter
-app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
+# limiter = Limiter(key_func=get_remote_address)
+# app.state.limiter = limiter
+# app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
 
 # Configuration
 MAX_FILE_SIZE = 10 * 1024 * 1024  # 10MB
@@ -58,7 +58,7 @@ class AskBody(BaseModel):
 
     
 @app.get("/")
-@limiter.limit("60/minute")  # Liberal limit for health checks
+# @limiter.limit("60/minute")  # Liberal limit for health checks
 async def health(request: Request):
     """Health check endpoint"""
     try:
@@ -82,7 +82,7 @@ async def health(request: Request):
     }
 
 @app.post("/ingest")
-@limiter.limit("500/hour")
+# @limiter.limit("500/hour")
 async def ingest(request: Request, files: list[UploadFile] = File(...), collection: str = Query("default")):
     """Upload and ingest documents"""
     if not files:
@@ -127,7 +127,7 @@ async def ingest(request: Request, files: list[UploadFile] = File(...), collecti
     
 
 @app.post("/ask")
-@limiter.limit("40/hour")
+# @limiter.limit("40/hour")
 async def ask(request: Request, body: AskBody):
     """Ask questions about ingested documents"""
     if not body.query.strip():

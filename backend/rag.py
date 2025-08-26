@@ -24,7 +24,7 @@ STORE_DIR = os.getenv("STORE_DIR", "store")
 
 os.environ.setdefault("HF_HOME", "/opt/render/project/src/.cache/hf")
 os.environ.setdefault("TRANSFORMERS_CACHE", os.environ["HF_HOME"])
-os.makedirs(os.environ["HF_HOME"], exist_ok=True)
+os.makedirs(os.getenv("HF_HOME", "/opt/render/project/src/.cache/hf"), exist_ok=True)
 # Strongly limit hidden thread pools (saves RAM/CPU)
 os.environ.setdefault("OMP_NUM_THREADS", "1")
 os.environ.setdefault("OPENBLAS_NUM_THREADS", "1")
